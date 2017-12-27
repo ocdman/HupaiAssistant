@@ -57,6 +57,9 @@
     <ClInclude Include="widgets\MyHotKey.h">
       <Filter>widgets</Filter>
     </ClInclude>
+    <ClInclude Include="RcLogInfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HupaiAssistant.cpp">
@@ -85,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="widgets\MyHotKey.cpp">
       <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="RcLogInfo.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
