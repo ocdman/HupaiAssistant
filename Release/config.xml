@@ -15,7 +15,7 @@
 	</IE>
 	
 	<Position_51hupai>
-		<!-- <Index>64,223</Index>
+		<Index>64,223</Index>
 		<OCR_Time>101,228,64,10</OCR_Time>
 		<OCR_Price>129,244,40,10</OCR_Price>
 		<JJ_Input>665,150</JJ_Input>
@@ -28,21 +28,7 @@
 		<YZM_Cancle>725,340</YZM_Cancle>
 		<OK_Button>640,315</OK_Button>
 		<YZM_Info>432,182,345,25</YZM_Info>
-		<YZM_Picture>474,238,115,52</YZM_Picture> -->
-		<Index>65,231</Index>
-		<OCR_Time>105,224,64,10</OCR_Time>
-		<OCR_Price>132,240,40,10</OCR_Price>
-		<JJ_Input>665,150</JJ_Input>
-		<JJ_Button>777,150</JJ_Button>
-		<CJ_Input>665,255</CJ_Input>
-		<CJ_Button>777,255</CJ_Button>
-		<YZM_Input>715,254</YZM_Input>
-		<YZM_Refresh>529,257</YZM_Refresh>
-		<YZM_Submit>535,334</YZM_Submit>
-		<YZM_Cancle>725,334</YZM_Cancle>
-		<OK_Button>635,322</OK_Button>
-		<YZM_Info>455,255,345,25</YZM_Info>
-		<YZM_Picture>715,211,115,35</YZM_Picture>
+		<YZM_Picture>474,238,115,52</YZM_Picture>
 	</Position_51hupai>
 	
 	<Position_alltobid>

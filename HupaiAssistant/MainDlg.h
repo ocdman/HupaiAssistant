@@ -24,7 +24,6 @@
 #define HOTKEY_CHUJIA					WM_USER + 1005
 #define HOTKEY_AUTO_CONFIRM				WM_USER + 1006
 #define HOTKEY_ESCAPE					WM_USER + 1007
-#define HOTKEY_CHUJIA_0					WM_USER + 1008
 #define HOTKEY_TEST_YZM					WM_USER + 100
 
 
@@ -85,7 +84,4 @@ public:
 
 	// 测试：预览验证码（发送HOTKEY消息）
 	// static void Thread_TestYZM(void *);
-
-	// 按照加价幅度出价
-	static void ChuJiaBase(CPoint ptIndex, int addPrice);
 };

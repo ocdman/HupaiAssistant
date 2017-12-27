@@ -158,7 +158,6 @@ BOOL Settings::LoadSettings() {
 		// 启动默认伏击策略：如48s+700。
 		TI_FETCH(e1, "ChuJia");
 		this->hotkey_chujia = Tools::LongFromStr(e1->GetText());
-		this->hotkey_chujia_0 = Tools::LongFromStr("131120");
 		// 退出任何自动模式
 		TI_FETCH(e1, "AutoConfirm");
 		this->hotkey_auto_confirm = Tools::LongFromStr(e1->GetText());
@@ -194,19 +193,6 @@ BOOL Settings::LoadSettings() {
 		TI_FETCH(e1, "CommitBefore");
 		bid.commit_before = Tools::TimeFromStr(e1->GetText());
 	} else {
-		return FALSE;
-	}
-
-	//
-	// OCR程序设置
-	//
-	if (e = eRoot->FirstChildElement("OCR")) {
-		TI_FETCH(e1, "ExePath");
-		this->ocr_exepath = e1->GetText();
-		TI_FETCH(e1, "arg1");
-		this->ocr_arg1 = e1->GetText();
-	}
-	else {
 		return FALSE;
 	}
 

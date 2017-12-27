@@ -4,8 +4,6 @@
 #include "afxdialogex.h"
 #include <stack>
 #include "tools.h"
-#include "RcLogInfo.h"
-#include <string>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -84,7 +82,7 @@ CMainDlg::~CMainDlg() {
 	brush.DeleteObject();
 }
 
-RcLogInfo rl;	//日志类
+
 BOOL CMainDlg::OnInitDialog() {
 
 	CDialogEx::OnInitDialog();
@@ -108,42 +106,6 @@ BOOL CMainDlg::OnInitDialog() {
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	// 初始化日志
-	//////////////////////////////////////////////////////////////////////////
-    char cPath[MAX_PATH];
-    memset(cPath,0,MAX_PATH);
-    if (!GetModuleFileName(NULL,cPath,MAX_PATH))
-    {
-        return false;
-    }
-    char *FileName = cPath + strlen(cPath)-1;
-    while(*FileName !='\\')
-    {
-        --FileName;
-    }
-    *FileName = '\0';
-    char cFileName[MAX_PATH]={'\0'};
-    sprintf(cFileName,"%s\\%s",cPath,"TestLog.log");
-
-
-    //////////////////////////////////////////////////////////////////////////
-    FILE *m_pfLogFile=NULL;
-    if(NULL != m_pfLogFile)
-    {
-        fclose(m_pfLogFile);
-    }
-    m_pfLogFile = fopen(cFileName,"at+");
-    if(NULL == m_pfLogFile)
-    {
-        return 1;
-    }
-
-
-    //////////////////////////////////////////////////////////////////////////
-    rl.SetLogFile(m_pfLogFile);
-
-
-    //////////////////////////////////////////////////////////////////////////
 
 	//
 	// 初始化窗口大小
@@ -296,10 +258,6 @@ void CMainDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2) {
 		pt.Offset(theApp.settings.pt_yzm_refresh);
 		ClickOnce(pt);
 
-		pt = ptIndex;
-		pt.Offset(theApp.settings.pt_yzm_input);
-		ClickOnce(pt);
-
 	} else if(nHotKeyId == HOTKEY_CLEAR) {
 
 		pt = ptIndex;
@@ -308,18 +266,48 @@ void CMainDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2) {
 
 	} else if(nHotKeyId == HOTKEY_CHUJIA) {
 
-		ChuJiaBase(ptIndex, theApp.settings.bid.add_price);
-	}
-	else if (nHotKeyId == HOTKEY_CHUJIA_0) {
+		if(theApp.status.autoBidStep == Status::NORMAL) {
+			theApp.status.autoBidStep = Status::YZM;
+		} else {
+			return;
+		}
 
-		ChuJiaBase(ptIndex, 0);
+		pt = ptIndex;
+		pt.Offset(theApp.settings.pt_jiajia_input);
+		ClickOnce(pt);
+		Sleep(CLICK_DELAY);
+		ClickOnce(pt); // Click Twice to ensure this click.
+		Sleep(CLICK_DELAY);
+
+		ClearInput(pt);
+		int delta = theApp.settings.bid.add_price;
+		std::stack<BYTE> stk;
+		while(delta > 0) {
+			stk.push(delta % 10);
+			delta /= 10;
+		}
+		while(!stk.empty()) {
+			InputChar(stk.top() + '0');
+			stk.pop();
+		}
+		Sleep(CLICK_DELAY);
+
+		pt = ptIndex;
+		pt.Offset(theApp.settings.pt_jiajia);
+		ClickOnce(pt);
+		Sleep(CLICK_DELAY);
+		pt = ptIndex;
+		pt.Offset(theApp.settings.pt_chujia);
+		ClickOnce(pt);
+
+		theApp.status.bid_price = theApp.status.price + theApp.settings.bid.add_price;
 
 	} else if(nHotKeyId == HOTKEY_AUTO_CONFIRM) {
 
 		if(theApp.status.autoBidStep != Status::YZM) {
 			return;
 		}
-		//Tools::SaveBitmap(pWndIE->GetDC(), "ss_shot.bmp");
+		Tools::SaveBitmap(pWndIE->GetDC(), "ss_shot.bmp");
 		theApp.status.autoBidStep = Status::AUTO_CONFIRM;
 		canAutoConfirm = TRUE;
 		_beginthread(Thread_AutoConfirm, 0, NULL);
@@ -570,9 +558,6 @@ BOOL CMainDlg::RegistHotKey() {
 	if(key = theApp.settings.hotkey_chujia) {
 		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA, HIWORD(key), LOWORD(key));
 	}
-	if (key = theApp.settings.hotkey_chujia_0) {
-		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA_0, HIWORD(key), LOWORD(key));
-	}
 	if(key = theApp.settings.hotkey_auto_confirm) {
 		flag &= RegisterHotKey(hWnd, HOTKEY_AUTO_CONFIRM, HIWORD(key), LOWORD(key));
 	}
@@ -611,9 +596,6 @@ BOOL CMainDlg::UnregisteHotKey() {
 	if(theApp.settings.hotkey_chujia) {
 		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA);
 	}
-	if (theApp.settings.hotkey_chujia_0) {
-		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA_0);
-	}
 	if(theApp.settings.hotkey_auto_confirm) {
 		flag &= UnregisterHotKey(hWnd, HOTKEY_AUTO_CONFIRM);
 	}
@@ -638,106 +620,39 @@ volatile BOOL CMainDlg::isAutoConfirm = FALSE;
 
 
 void CMainDlg::Thread_Normal(void *param) {
-	/*
-	HDC hDcIE = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
-	HDC hDcMem;
-	HBITMAP hBitmap;
-	*/
 
+	CDC dc, *pDcIE = pWndIE->GetDC();
+	CBitmap bitmap;
 	CRect rect;
+	BYTE mask[512];
 	SYSTEMTIME time;
+	int ocr;
+
 
 	isNormal = TRUE;
-	while (canNormal) {
-
+	while(canNormal) {
 		//
 		// Init
 		//
-		//hDcMem = CreateCompatibleDC(hDcIE);
-
+		dc.CreateCompatibleDC(pDcIE);
 		//
 		// Time
 		//
 		rect = theApp.settings.rgn_ocr_time;
 		rect.OffsetRect(theApp.settings.pt_index);
-		/*
-		hBitmap = CreateCompatibleBitmap(hDcIE, rect.Width(), rect.Height());
-		HBITMAP hBmpOld = (HBITMAP)SelectObject(hDcMem, hBitmap);
-		DWORD dwRop = SRCCOPY | CAPTUREBLT;
-		BOOL bRet = BitBlt(hDcMem, 0, 0, rect.Width(), rect.Height(), hDcIE, rect.left, rect.top, dwRop);
-		SelectObject(hDcMem, hBmpOld);
-		Tools::SaveBitmap2(hBitmap, "./ss_time.bmp");
-		DeleteObject(hBitmap);
-		*/
-
-		CString ExePath = theApp.settings.ocr_exepath;
-		CString arg1 = theApp.settings.ocr_arg1;
-		CString arg2;
-		arg2.Format(_T("\"%ld %ld %ld %ld\""), rect.left, rect.top, rect.right, rect.bottom);
-		//CString arg1 = "-i";
-		//CString arg2 = ".\\ss_time.bmp";
-		CString sResult = "";
-		CString strCommandLine = ExePath + " " + arg1 + " " + arg2;
-
-		sResult = Tools::ExecuteExternalFile(strCommandLine);
-		sResult.Remove('\r');
-		sResult.Remove('\n');
-		sResult.Remove(' ');
-
-		std::string stime(sResult);
-		int hour, min, sec = 0;
-		sscanf(stime.c_str(), "%d:%d:%d", &hour, &min, &sec);
-
-		theApp.status.serverHour = hour;
-		theApp.status.serverMinute = min;
-		theApp.status.serverSecond = sec;
-		GetLocalTime(&time);
-		theApp.status.serverDelay = ((time.wSecond - theApp.status.serverSecond + 60) % 60) * 1000 + time.wMilliseconds;
-
-		//DeleteDC(hDcMem);
-		//DeleteDC(hDcIE);
-
-		rect = theApp.settings.rgn_ocr_price;
-		rect.OffsetRect(theApp.settings.pt_index);
-
-		arg2.Format(_T("\"%ld %ld %ld %ld\""), rect.left, rect.top, rect.right, rect.bottom);
-		strCommandLine = ExePath + " " + arg1 + " " + arg2;
-		sResult = Tools::ExecuteExternalFile(strCommandLine);
-		sResult.Remove('\r');
-		sResult.Remove('\n');
-		sResult.Remove(' ');		
-
-		int price;
-		sscanf(sResult, "%d", &price);
-		theApp.status.price = price;
-
-
-		/*
-		timeb bTime;
-		ftime(&bTime);
-		sprintf(rl.m_cInfo, "写日志测试******************************+++++++++++++++++++++++_________________%s .%ld ms\n", ctime(&(bTime.time)), bTime.millitm);
-		rl.WriteLogInfo(rl.m_cInfo);
-		sprintf(rl.m_cInfo, "当前最低价：%d\n", price);
-		rl.WriteLogInfo(rl.m_cInfo);
-		*/
-
-
-		theApp.GetMainWnd()->Invalidate(FALSE);
-		Sleep(50);
-
-		//break;
-
-		/*
-		Tools::SaveBitmap(&dc, "./ss_time.bmp");
+		bitmap.CreateCompatibleBitmap(pDcIE, rect.Width(), rect.Height()); // 用&dc不行！
+		dc.SelectObject(&bitmap);
+		dc.BitBlt(0, 0, rect.Width(), rect.Height(), pDcIE, rect.left, rect.top, SRCCOPY);
+		// Tools::SaveBitmap(&dc, "./ss_time.bmp");
 		Tools::GetBitmapMask(mask, &dc);
 		bitmap.DeleteObject();
 		ocr = Tools::OCR_Number(mask, rect.Width());
 		if(ocr != 0 && theApp.status.serverSecond != ocr % 100) {
-		theApp.status.serverHour = (ocr / 10000) % 100;
-		theApp.status.serverMinute = (ocr / 100) % 100;
-		theApp.status.serverSecond = ocr % 100;
-		GetLocalTime(&time);
-		theApp.status.serverDelay = ((time.wSecond - theApp.status.serverSecond + 60) % 60) * 1000 + time.wMilliseconds;
+			theApp.status.serverHour = (ocr / 10000) % 100;
+			theApp.status.serverMinute = (ocr / 100) % 100;
+			theApp.status.serverSecond = ocr % 100;
+			GetLocalTime(&time);
+			theApp.status.serverDelay = ((time.wSecond - theApp.status.serverSecond + 60) % 60) * 1000 + time.wMilliseconds;
 		}
 		//
 		// Price
@@ -752,16 +667,14 @@ void CMainDlg::Thread_Normal(void *param) {
 		bitmap.DeleteObject();
 		ocr = Tools::OCR_Number(mask, rect.Width());
 		if(ocr != 0) {
-		theApp.status.price = ocr;
+			theApp.status.price = ocr;
 		}
-
 		//
 		// Cleanup
 		//
 		dc.DeleteDC();
 		theApp.GetMainWnd()->Invalidate(FALSE);
 		Sleep(50);
-		*/
 	}
 	isNormal = FALSE;
 }
@@ -775,6 +688,7 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 	int cmt_price = theApp.status.bid_price - (theApp.settings.bid.commit_advance + PRICE_INTERVAL);
 	int cmt_delay = theApp.settings.bid.commit_delay;
 
+
 	isAutoConfirm = TRUE;
 
 	while(canAutoConfirm) {
@@ -784,12 +698,10 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 		} else {
 			cur_time = Tools::MakeTime(theApp.status.serverHour, theApp.status.serverMinute, theApp.status.serverSecond);
 		}
-
 		// 到达最晚出价时间
 		if(cur_time >= latest_time) {
 			break;
 		}
-
 		// 达到伏击价格
 		if(theApp.status.price >= cmt_price) {
 			if(cmt_delay > 0) {
@@ -799,7 +711,6 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 		}
 		Sleep(10);
 	};
-
 	theApp.GetMainWnd()->SendMessage(WM_HOTKEY, HOTKEY_CONFIRM, theApp.settings.hotkey_confirm);
 	theApp.status.autoBidStep = Status::CONFIRMED;
 
@@ -810,46 +721,6 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 
 	canAutoConfirm = FALSE;
 	isAutoConfirm = FALSE;
-}
-
-void  CMainDlg::ChuJiaBase(CPoint ptIndex, int addPrice) {
-	CPoint pt;
-	if (theApp.status.autoBidStep == Status::NORMAL) {
-		theApp.status.autoBidStep = Status::YZM;
-	}
-	else {
-		return;
-	}
-
-	pt = ptIndex;
-	pt.Offset(theApp.settings.pt_jiajia_input);
-	ClickOnce(pt);
-	Sleep(CLICK_DELAY);
-	ClickOnce(pt); // Click Twice to ensure this click.
-	Sleep(CLICK_DELAY);
-
-	ClearInput(pt);
-	int delta = addPrice;
-	std::stack<BYTE> stk;
-	while (delta > 0) {
-		stk.push(delta % 10);
-		delta /= 10;
-	}
-	while (!stk.empty()) {
-		InputChar(stk.top() + '0');
-		stk.pop();
-	}
-	Sleep(CLICK_DELAY);
-
-	pt = ptIndex;
-	pt.Offset(theApp.settings.pt_jiajia);
-	ClickOnce(pt);
-	Sleep(CLICK_DELAY);
-	pt = ptIndex;
-	pt.Offset(theApp.settings.pt_chujia);
-	ClickOnce(pt);
-
-	theApp.status.bid_price = theApp.status.price + addPrice;
 }
 
 //==================================================================================================

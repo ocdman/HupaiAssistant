@@ -75,7 +75,6 @@ public:
 	DWORD hotkey_refresh;
 	DWORD hotkey_clear;
 	DWORD hotkey_chujia;				// 如：+700出价
-	DWORD hotkey_chujia_0;				// +0出价
 	DWORD hotkey_auto_confirm;
 	DWORD hotkey_escape;				// 退出正在进行的模式
 	DWORD hotkey_test_yzm;				// 测试：预览验证码
@@ -92,12 +91,6 @@ public:
 		int commit_before;				// 最晚出价时间（强制出价）
 	} Bid;
 	Bid	bid;							// == 伏击模式：48s+700 ==
-
-	//
-	// OCR程序
-	//
-	CString ocr_exepath;					// OCR程序路径
-	CString ocr_arg1;						// OCR程序接受的第一个参数
 //------------------------------------------------------------------------------
 };
 
