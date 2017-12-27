@@ -21,7 +21,12 @@ public:
 	static LONG LongFromStr(const char *);
 
 	static BOOL SaveBitmap(const CDC *, const char *);
+	static BOOL SaveBitmap2(HBITMAP hBitmap, const char *name);
+	static BOOL SaveBitmap3(char *szFilename, HBITMAP hBitmap);
 	static BOOL GetBitmapMask(void *, const CDC *);
+	static BOOL GetBitmapMask2(void *pData, HBITMAP hBitmap);
 
 	static int OCR_Number(const void *, int w, int h=10); // FLASE:-1, TRUE:>=0
+
+	static CString ExecuteExternalFile(CString csExecute);
 };

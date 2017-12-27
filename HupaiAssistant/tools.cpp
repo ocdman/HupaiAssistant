@@ -174,6 +174,96 @@ BOOL Tools::SaveBitmap(const CDC *pdc, const char *name) {
 	return TRUE;
 }
 
+BOOL Tools::SaveBitmap2(HBITMAP hBitmap, const char *name) {
+
+	FILE *fp;
+	CBitmap *bitmap;
+	BITMAP bmp;
+	BYTE *pData;
+	BITMAPINFOHEADER bih = { 0 };
+	BITMAPFILEHEADER bfh = { 0 };
+
+	fopen_s(&fp, name, "wb");
+	GetObject(hBitmap, sizeof(BITMAP), &bmp);
+
+	bih.biBitCount = bmp.bmBitsPixel;
+	bih.biCompression = BI_RGB;
+	bih.biHeight = bmp.bmHeight;
+	bih.biPlanes = 1;
+	bih.biSize = sizeof(BITMAPINFOHEADER);
+	bih.biSizeImage = bmp.bmWidthBytes * bmp.bmHeight;
+	bih.biWidth = bmp.bmWidth;
+
+	bfh.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	bfh.bfSize = bfh.bfOffBits + bmp.bmWidthBytes * bmp.bmHeight;
+	bfh.bfType = (WORD)0x4d42;
+
+	pData = new BYTE[bmp.bmWidthBytes * bmp.bmHeight];
+	GetDIBits(GetDC(NULL), hBitmap, 0, bmp.bmHeight, pData, (LPBITMAPINFO)&bih, DIB_RGB_COLORS);
+	fwrite(&bfh, 1, sizeof(BITMAPFILEHEADER), fp);
+	fwrite(&bih, 1, sizeof(BITMAPINFOHEADER), fp);
+	fwrite(pData, 1, bmp.bmWidthBytes * bmp.bmHeight, fp);
+	fclose(fp);
+	delete[] pData;
+
+	return TRUE;
+}
+
+BOOL Tools::SaveBitmap3(char *szFilename, HBITMAP hBitmap) {
+	HDC					hdc = NULL;
+	FILE*				fp = NULL;
+	LPVOID				pBuf = NULL;
+	BITMAPINFO			bmpInfo;
+	BITMAPFILEHEADER	bmpFileHeader;
+
+	do {
+
+		hdc = GetDC(NULL);
+		ZeroMemory(&bmpInfo, sizeof(BITMAPINFO));
+		bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		GetDIBits(hdc, hBitmap, 0, 0, NULL, &bmpInfo, DIB_RGB_COLORS);
+
+		if (bmpInfo.bmiHeader.biSizeImage <= 0)
+			bmpInfo.bmiHeader.biSizeImage = bmpInfo.bmiHeader.biWidth*abs(bmpInfo.bmiHeader.biHeight)*(bmpInfo.bmiHeader.biBitCount + 7) / 8;
+
+		if ((pBuf = malloc(bmpInfo.bmiHeader.biSizeImage)) == NULL)
+		{
+			MessageBox(NULL, _T("Unable to Allocate Bitmap Memory"), _T("Error"), MB_OK | MB_ICONERROR);
+			break;
+		}
+
+		bmpInfo.bmiHeader.biCompression = BI_RGB;
+		GetDIBits(hdc, hBitmap, 0, bmpInfo.bmiHeader.biHeight, pBuf, &bmpInfo, DIB_RGB_COLORS);
+
+		if ((fp = fopen(szFilename, "wb")) == NULL)
+		{
+			MessageBox(NULL, _T("Unable to Create Bitmap File"), _T("Error"), MB_OK | MB_ICONERROR);
+			break;
+		}
+
+		bmpFileHeader.bfReserved1 = 0;
+		bmpFileHeader.bfReserved2 = 0;
+		bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + bmpInfo.bmiHeader.biSizeImage;
+		bmpFileHeader.bfType = 'MB';
+		bmpFileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+		fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, fp);
+		fwrite(&bmpInfo.bmiHeader, sizeof(BITMAPINFOHEADER), 1, fp);
+		fwrite(pBuf, bmpInfo.bmiHeader.biSizeImage, 1, fp);
+
+	} while (false);
+
+	if (hdc)
+		ReleaseDC(NULL, hdc);
+
+	if (pBuf)
+		free(pBuf);
+
+	if (fp)
+		fclose(fp);
+
+	return TRUE;
+}
 
 BOOL Tools::GetBitmapMask(void *pData, const CDC *pdc) {
 
@@ -216,6 +306,49 @@ BOOL Tools::GetBitmapMask(void *pData, const CDC *pdc) {
 	return TRUE;
 }
 
+BOOL Tools::GetBitmapMask2(void *pData, HBITMAP hBitmap) {
+
+	//CBitmap *bitmap;
+	BITMAP bmp;
+	BITMAPINFOHEADER bih = { 0 };
+	BYTE *pBuff;
+	WORD *pMask = (WORD *)pData;
+
+	//bitmap = pdc->GetCurrentBitmap();
+	//bitmap->GetBitmap(&bmp);
+
+	GetObject(hBitmap, sizeof(BITMAP), &bmp);
+
+	// 必须为RGBA32格式，且高度为10px
+	if (bmp.bmBitsPixel != 32 || bmp.bmHeight != 10) {
+		return FALSE;
+	}
+
+	bih.biBitCount = bmp.bmBitsPixel;
+	bih.biCompression = BI_RGB;
+	bih.biHeight = bmp.bmHeight;
+	bih.biPlanes = 1;
+	bih.biSize = sizeof(BITMAPINFOHEADER);
+	bih.biSizeImage = bmp.bmWidthBytes * bmp.bmHeight;
+	bih.biWidth = bmp.bmWidth;
+
+	memset(pData, 0, bmp.bmWidth * 2);
+	pBuff = new BYTE[bmp.bmWidthBytes * bmp.bmHeight];
+	GetDIBits(GetDC(NULL), hBitmap, 0, bmp.bmHeight, pBuff, (LPBITMAPINFO)&bih, DIB_RGB_COLORS);
+
+	// 先逐列扫描
+	for (int i = 0; i < bmp.bmWidth; i++) {
+		// 再逐行扫描
+		for (int j = 0; j < bmp.bmHeight; j++) {
+			COLORREF c = *(COLORREF *)(pBuff + (bmp.bmHeight - j - 1) * bmp.bmWidthBytes + i * 4) & 0xFFFFFF;
+			pMask[i] |= (c == 0xFFFFFF) ? 0 : 1 << j;
+		}
+	}
+	delete[] pBuff;
+
+	return TRUE;
+}
+
 
 int Tools::OCR_Number(const void *pData, int w, int h /* 10 */) {
 
@@ -243,4 +376,55 @@ int Tools::OCR_Number(const void *pData, int w, int h /* 10 */) {
 	}
 
 	return val;
+}
+
+CString Tools::ExecuteExternalFile(CString csExecute)
+{
+	SECURITY_ATTRIBUTES secattr;
+	ZeroMemory(&secattr, sizeof(secattr));
+	secattr.nLength = sizeof(secattr);
+	secattr.bInheritHandle = TRUE;
+
+	HANDLE rPipe, wPipe;
+
+	//Create pipes to write and read data
+	CreatePipe(&rPipe, &wPipe, &secattr, 0);
+	//
+	STARTUPINFO sInfo;
+	ZeroMemory(&sInfo, sizeof(sInfo));
+
+	PROCESS_INFORMATION pInfo;
+	ZeroMemory(&pInfo, sizeof(pInfo));
+
+	sInfo.cb = sizeof(sInfo);
+	sInfo.dwFlags = STARTF_USESTDHANDLES;
+	sInfo.hStdInput = NULL;
+	sInfo.hStdOutput = wPipe;
+	sInfo.hStdError = wPipe;
+
+	char command[1024];
+	strcpy(command, csExecute.GetBuffer(csExecute.GetLength()));
+
+	//Create the process here.
+	CreateProcess(0, command, 0, 0, TRUE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &sInfo, &pInfo);
+	CloseHandle(wPipe);
+
+	//now read the output pipe here.
+
+	char buf[100];
+	DWORD reDword;
+	CString m_csOutput, csTemp;
+	BOOL res;
+	do
+	{
+		res = ::ReadFile(rPipe, buf, 100, &reDword, 0);
+		csTemp = buf;
+		m_csOutput += csTemp.Left(reDword);
+	} while (res);
+
+
+	CloseHandle(pInfo.hProcess);
+	CloseHandle(pInfo.hThread);
+
+	return  m_csOutput;
 }

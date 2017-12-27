@@ -32,3 +32,6 @@ HupaiAssistant/ss_price.bmp
 HupaiAssistant/ss_time.bmp
 ipch/hupaiassistant-29515393/hupaiassistant-37aecdd.ipch
 HupaiAssistant.opensdf
+*.ipch
+*.opendb
+/HupaiAssistant.VC.db
