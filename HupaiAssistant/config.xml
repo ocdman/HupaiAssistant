@@ -4,7 +4,7 @@
 		<BidDate>2016-05-21</BidDate>
 		<EndTime>11:30:00.0</EndTime>
 		<Amount>11598</Amount>
-		<CapPrice>90000</CapPrice>
+		<CapPrice>89000</CapPrice>
 	</BidInfo>
 	
 	<IE>
@@ -58,10 +58,11 @@
 		<PressCancle desc="CTRL C">131139</PressCancle>
 		<PressRefresh desc="CTRL R">131154</PressRefresh>
 		<ClearYZM desc="CTRL Z">131162</ClearYZM>
-		<ChuJia desc="CTRL 7">131127</ChuJia>
+		<ChuJia desc="CTRL 3~9/0">131127</ChuJia>
 		<AutoConfirm desc="Enter">13</AutoConfirm>
 		<Escape desc="Esc">27</Escape>
 		<TestYZM desc="CTRL T">131156</TestYZM>
+		<DontCloseIE desc="CTRL W">131159</DontCloseIE>
 	</HotKey>
 
 	<AutoBid>
@@ -72,7 +73,8 @@
 		<CommitDelay>0:0:1.0</CommitDelay> -->
 		<CommitAdvance>0</CommitAdvance>
 		<CommitDelay>0:0:0.0</CommitDelay>
-		<CommitBefore>11:29:55.600</CommitBefore>
+		<!-- <CommitBefore>11:29:55.600</CommitBefore> -->
+		<CommitBefore>11:29:56.500</CommitBefore>
 	</AutoBid>
 
 	<OCR>

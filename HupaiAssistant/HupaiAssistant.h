@@ -75,10 +75,17 @@ public:
 	DWORD hotkey_refresh;
 	DWORD hotkey_clear;
 	DWORD hotkey_chujia;				// 如：+700出价
-	DWORD hotkey_chujia_0;				// +0出价
+	DWORD hotkey_chujia_3;				// +300出价
+	DWORD hotkey_chujia_4;				// +400出价
+	DWORD hotkey_chujia_5;				// +500出价
+	DWORD hotkey_chujia_6;				// +600出价
+	DWORD hotkey_chujia_8;				// +800出价
+	DWORD hotkey_chujia_9;				// +900出价
+	DWORD hotkey_chujia_0;				// +1000出价
 	DWORD hotkey_auto_confirm;
 	DWORD hotkey_escape;				// 退出正在进行的模式
 	DWORD hotkey_test_yzm;				// 测试：预览验证码
+	DWORD hotkey_dont_close_ie;			// 占用Ctrl+W关闭IE标签页快捷键，防止误关闭标签页
 
 	//
 	// 自动伏击模式

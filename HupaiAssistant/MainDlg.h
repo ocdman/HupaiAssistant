@@ -25,7 +25,14 @@
 #define HOTKEY_AUTO_CONFIRM				WM_USER + 1006
 #define HOTKEY_ESCAPE					WM_USER + 1007
 #define HOTKEY_CHUJIA_0					WM_USER + 1008
+#define HOTKEY_CHUJIA_3					WM_USER + 1009
+#define HOTKEY_CHUJIA_4					WM_USER + 1010
+#define HOTKEY_CHUJIA_5					WM_USER + 1011
+#define HOTKEY_CHUJIA_6					WM_USER + 1012
+#define HOTKEY_CHUJIA_8					WM_USER + 1013
+#define HOTKEY_CHUJIA_9					WM_USER + 1014
 #define HOTKEY_TEST_YZM					WM_USER + 100
+#define HOTKEY_DONT_CLOSE_IE			WM_USER + 101
 
 
 // CHupaiAssistantDlg ¶Ô»°¿ò

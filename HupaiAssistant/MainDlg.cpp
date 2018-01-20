@@ -309,10 +309,33 @@ void CMainDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2) {
 	} else if(nHotKeyId == HOTKEY_CHUJIA) {
 
 		ChuJiaBase(ptIndex, theApp.settings.bid.add_price);
-	}
-	else if (nHotKeyId == HOTKEY_CHUJIA_0) {
+	} else if (nHotKeyId == HOTKEY_CHUJIA_3) {
 
-		ChuJiaBase(ptIndex, 0);
+		ChuJiaBase(ptIndex, 300);
+
+	} else if (nHotKeyId == HOTKEY_CHUJIA_4) {
+
+		ChuJiaBase(ptIndex, 400);
+
+	} else if (nHotKeyId == HOTKEY_CHUJIA_5) {
+
+		ChuJiaBase(ptIndex, 500);
+
+	} else if (nHotKeyId == HOTKEY_CHUJIA_6) {
+
+		ChuJiaBase(ptIndex, 600);
+
+	} else if (nHotKeyId == HOTKEY_CHUJIA_8) {
+
+		ChuJiaBase(ptIndex, 800);
+
+	} else if (nHotKeyId == HOTKEY_CHUJIA_9) {
+
+		ChuJiaBase(ptIndex, 900);
+
+	} else if (nHotKeyId == HOTKEY_CHUJIA_0) {
+
+		ChuJiaBase(ptIndex, 1000);
 
 	} else if(nHotKeyId == HOTKEY_AUTO_CONFIRM) {
 
@@ -355,6 +378,10 @@ void CMainDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2) {
 		// pt = ptIndex;
 		// pt.Offset(theApp.settings.pt_yzm_cancle);
 		// ClickOnce(pt);
+
+	} else if (nHotKeyId == HOTKEY_DONT_CLOSE_IE) {
+
+		// 什么都不做，仅仅只是占用该热键，防止误关闭标签页
 
 	} else {
 		AfxMessageBox(_T("未识别的热键！"));
@@ -570,6 +597,24 @@ BOOL CMainDlg::RegistHotKey() {
 	if(key = theApp.settings.hotkey_chujia) {
 		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA, HIWORD(key), LOWORD(key));
 	}
+	if (key = theApp.settings.hotkey_chujia_3) {
+		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA_3, HIWORD(key), LOWORD(key));
+	}
+	if (key = theApp.settings.hotkey_chujia_4) {
+		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA_4, HIWORD(key), LOWORD(key));
+	}
+	if (key = theApp.settings.hotkey_chujia_5) {
+		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA_5, HIWORD(key), LOWORD(key));
+	}
+	if (key = theApp.settings.hotkey_chujia_6) {
+		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA_6, HIWORD(key), LOWORD(key));
+	}
+	if (key = theApp.settings.hotkey_chujia_8) {
+		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA_8, HIWORD(key), LOWORD(key));
+	}
+	if (key = theApp.settings.hotkey_chujia_9) {
+		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA_9, HIWORD(key), LOWORD(key));
+	}
 	if (key = theApp.settings.hotkey_chujia_0) {
 		flag &= RegisterHotKey(hWnd, HOTKEY_CHUJIA_0, HIWORD(key), LOWORD(key));
 	}
@@ -582,7 +627,10 @@ BOOL CMainDlg::RegistHotKey() {
 	if(key = theApp.settings.hotkey_test_yzm) {
 		flag &= RegisterHotKey(hWnd, HOTKEY_TEST_YZM, HIWORD(key), LOWORD(key));
 	}
-	
+	if (key = theApp.settings.hotkey_dont_close_ie) {
+		flag &= RegisterHotKey(hWnd, HOTKEY_DONT_CLOSE_IE, HIWORD(key), LOWORD(key));
+	}
+
 	return flag;
 }
 
@@ -611,6 +659,24 @@ BOOL CMainDlg::UnregisteHotKey() {
 	if(theApp.settings.hotkey_chujia) {
 		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA);
 	}
+	if (theApp.settings.hotkey_chujia_3) {
+		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA_3);
+	}
+	if (theApp.settings.hotkey_chujia_4) {
+		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA_4);
+	}
+	if (theApp.settings.hotkey_chujia_5) {
+		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA_5);
+	}
+	if (theApp.settings.hotkey_chujia_6) {
+		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA_6);
+	}
+	if (theApp.settings.hotkey_chujia_8) {
+		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA_8);
+	}
+	if (theApp.settings.hotkey_chujia_9) {
+		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA_9);
+	}
 	if (theApp.settings.hotkey_chujia_0) {
 		flag &= UnregisterHotKey(hWnd, HOTKEY_CHUJIA_0);
 	}
@@ -622,6 +688,9 @@ BOOL CMainDlg::UnregisteHotKey() {
 	}
 	if(theApp.settings.hotkey_test_yzm) {
 		flag &= UnregisterHotKey(hWnd, HOTKEY_TEST_YZM);
+	}
+	if (theApp.settings.hotkey_dont_close_ie) {
+		flag &= UnregisterHotKey(hWnd, HOTKEY_DONT_CLOSE_IE);
 	}
 
 	return flag;
@@ -638,11 +707,11 @@ volatile BOOL CMainDlg::isAutoConfirm = FALSE;
 
 
 void CMainDlg::Thread_Normal(void *param) {
-	/*
-	HDC hDcIE = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
-	HDC hDcMem;
-	HBITMAP hBitmap;
-	*/
+	
+	//HDC hDcIE = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
+	//HDC hDcMem;
+	//HBITMAP hBitmap;
+	
 
 	CRect rect;
 	SYSTEMTIME time;
@@ -660,6 +729,7 @@ void CMainDlg::Thread_Normal(void *param) {
 		//
 		rect = theApp.settings.rgn_ocr_time;
 		rect.OffsetRect(theApp.settings.pt_index);
+		
 		/*
 		hBitmap = CreateCompatibleBitmap(hDcIE, rect.Width(), rect.Height());
 		HBITMAP hBmpOld = (HBITMAP)SelectObject(hDcMem, hBitmap);
@@ -669,13 +739,12 @@ void CMainDlg::Thread_Normal(void *param) {
 		Tools::SaveBitmap2(hBitmap, "./ss_time.bmp");
 		DeleteObject(hBitmap);
 		*/
-
+		
+		
 		CString ExePath = theApp.settings.ocr_exepath;
 		CString arg1 = theApp.settings.ocr_arg1;
 		CString arg2;
 		arg2.Format(_T("\"%ld %ld %ld %ld\""), rect.left, rect.top, rect.right, rect.bottom);
-		//CString arg1 = "-i";
-		//CString arg2 = ".\\ss_time.bmp";
 		CString sResult = "";
 		CString strCommandLine = ExePath + " " + arg1 + " " + arg2;
 
@@ -693,10 +762,12 @@ void CMainDlg::Thread_Normal(void *param) {
 		theApp.status.serverSecond = sec;
 		GetLocalTime(&time);
 		theApp.status.serverDelay = ((time.wSecond - theApp.status.serverSecond + 60) % 60) * 1000 + time.wMilliseconds;
+		
 
 		//DeleteDC(hDcMem);
 		//DeleteDC(hDcIE);
 
+		
 		rect = theApp.settings.rgn_ocr_price;
 		rect.OffsetRect(theApp.settings.pt_index);
 
@@ -705,7 +776,7 @@ void CMainDlg::Thread_Normal(void *param) {
 		sResult = Tools::ExecuteExternalFile(strCommandLine);
 		sResult.Remove('\r');
 		sResult.Remove('\n');
-		sResult.Remove(' ');		
+		sResult.Remove(' ');	
 
 		int price;
 		sscanf(sResult, "%d", &price);
@@ -800,11 +871,14 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 		Sleep(10);
 	};
 
-	theApp.GetMainWnd()->SendMessage(WM_HOTKEY, HOTKEY_CONFIRM, theApp.settings.hotkey_confirm);
-	theApp.status.autoBidStep = Status::CONFIRMED;
+	if (canAutoConfirm && theApp.status.autoBidStep == Status::AUTO_CONFIRM) {
+		theApp.GetMainWnd()->SendMessage(WM_HOTKEY, HOTKEY_CONFIRM, theApp.settings.hotkey_confirm);
+		theApp.status.autoBidStep = Status::CONFIRMED;
+	}
 
-	if(canAutoConfirm) {
-		Sleep(theApp.settings.bid_time - latest_time);
+	if (canAutoConfirm && theApp.status.autoBidStep == Status::CONFIRMED) {
+		//Sleep(theApp.settings.bid_time - latest_time);
+		Sleep(1000);
 		theApp.status.autoBidStep = Status::FINISHED;
 	}
 

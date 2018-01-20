@@ -159,6 +159,12 @@ BOOL Settings::LoadSettings() {
 		TI_FETCH(e1, "ChuJia");
 		this->hotkey_chujia = Tools::LongFromStr(e1->GetText());
 		this->hotkey_chujia_0 = Tools::LongFromStr("131120");
+		this->hotkey_chujia_3 = Tools::LongFromStr("131123");
+		this->hotkey_chujia_4 = Tools::LongFromStr("131124");
+		this->hotkey_chujia_5 = Tools::LongFromStr("131125");
+		this->hotkey_chujia_6 = Tools::LongFromStr("131126");
+		this->hotkey_chujia_8 = Tools::LongFromStr("131128");
+		this->hotkey_chujia_9 = Tools::LongFromStr("131129");
 		// 退出任何自动模式
 		TI_FETCH(e1, "AutoConfirm");
 		this->hotkey_auto_confirm = Tools::LongFromStr(e1->GetText());
@@ -168,6 +174,9 @@ BOOL Settings::LoadSettings() {
 		// 测试：预览验证码
 		TI_FETCH(e1, "TestYZM");
 		this->hotkey_test_yzm = Tools::LongFromStr(e1->GetText());
+		// 防止误关闭标签页
+		TI_FETCH(e1, "DontCloseIE");
+		this->hotkey_dont_close_ie = Tools::LongFromStr(e1->GetText());
 	} else {
 		return FALSE;
 	}
