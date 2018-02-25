@@ -187,6 +187,12 @@ BOOL CMainDlg::OnInitDialog() {
 	canNormal = TRUE;
 	_beginthread(Thread_Normal, 0, NULL);
 
+	//
+	// 系统时间&最低可成交价
+	// 截图测试(不要和Thread_Normal线程同开)
+	//
+	//_beginthread(Thread_TestBmp, 0, NULL);
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -266,7 +272,6 @@ void CMainDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2) {
 
 	CPoint pt, ptIndex(theApp.settings.pt_index);
 
-
 	pWndIE->ClientToScreen(&ptIndex);
 
 	if(nHotKeyId == HOTKEY_OK) {
@@ -342,7 +347,9 @@ void CMainDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2) {
 		if(theApp.status.autoBidStep != Status::YZM) {
 			return;
 		}
+
 		//Tools::SaveBitmap(pWndIE->GetDC(), "ss_shot.bmp");
+
 		theApp.status.autoBidStep = Status::AUTO_CONFIRM;
 		canAutoConfirm = TRUE;
 		_beginthread(Thread_AutoConfirm, 0, NULL);
@@ -430,6 +437,7 @@ void CMainDlg::OnPaint() {
 #define H_GRAPH		20
 #define L_GRID		10
 
+	HDC hDcIE = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
 
 	//
 	// Init DC
@@ -515,12 +523,20 @@ void CMainDlg::OnPaint() {
 	} else if(theApp.status.autoBidStep == Status::YZM) {
 		rect = theApp.settings.rgn_yzm_info;
 		rect.OffsetRect(theApp.settings.pt_index);
-		memDC.BitBlt(MARGIN, Y_YZM + 20, rect.Width(), rect.Height(), 
-			pWndIE->GetDC(), rect.left, rect.top, SRCCOPY);
+
+		CDC * pDC = CDC::FromHandle(hDcIE);
+
+		/*memDC.BitBlt(MARGIN, Y_YZM + 20, rect.Width(), rect.Height(), 
+			pWndIE->GetDC(), rect.left, rect.top, SRCCOPY);*/
+		memDC.BitBlt(MARGIN, Y_YZM + 20, rect.Width(), rect.Height(),
+			pDC, rect.left, rect.top, SRCCOPY);
+
 		rect = theApp.settings.rgn_yzm_picture;
 		rect.OffsetRect(theApp.settings.pt_index);
-		memDC.StretchBlt(MARGIN, Y_YZM + 60, rect.Width()*3, rect.Height()*3, 
-			pWndIE->GetDC(), rect.left, rect.top, rect.Width(), rect.Height(), SRCCOPY);
+		/*memDC.StretchBlt(MARGIN, Y_YZM + 60, rect.Width()*3, rect.Height()*3, 
+			pWndIE->GetDC(), rect.left, rect.top, rect.Width(), rect.Height(), SRCCOPY);*/
+		memDC.StretchBlt(MARGIN, Y_YZM + 60, rect.Width() * 3, rect.Height() * 3,
+			pDC, rect.left, rect.top, rect.Width(), rect.Height(), SRCCOPY);
 	} else {
 		if(theApp.status.autoBidStep == Status::AUTO_CONFIRM) {
 			memDC.FillSolidRect(&rect, green);
@@ -541,6 +557,7 @@ void CMainDlg::OnPaint() {
 	dc.BitBlt(0, 0, DISP_WIDTH, DISP_HEIGHT, &memDC, 0, 0, SRCCOPY);
 	memDC.DeleteDC();
 	memBmp.DeleteObject();
+	DeleteDC(hDcIE);
 }
 
 
@@ -707,39 +724,16 @@ volatile BOOL CMainDlg::isAutoConfirm = FALSE;
 
 
 void CMainDlg::Thread_Normal(void *param) {
-	
-	//HDC hDcIE = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
-	//HDC hDcMem;
-	//HBITMAP hBitmap;
-	
-
 	CRect rect;
 	SYSTEMTIME time;
 
 	isNormal = TRUE;
 	while (canNormal) {
-
-		//
-		// Init
-		//
-		//hDcMem = CreateCompatibleDC(hDcIE);
-
 		//
 		// Time
 		//
 		rect = theApp.settings.rgn_ocr_time;
 		rect.OffsetRect(theApp.settings.pt_index);
-		
-		/*
-		hBitmap = CreateCompatibleBitmap(hDcIE, rect.Width(), rect.Height());
-		HBITMAP hBmpOld = (HBITMAP)SelectObject(hDcMem, hBitmap);
-		DWORD dwRop = SRCCOPY | CAPTUREBLT;
-		BOOL bRet = BitBlt(hDcMem, 0, 0, rect.Width(), rect.Height(), hDcIE, rect.left, rect.top, dwRop);
-		SelectObject(hDcMem, hBmpOld);
-		Tools::SaveBitmap2(hBitmap, "./ss_time.bmp");
-		DeleteObject(hBitmap);
-		*/
-		
 		
 		CString ExePath = theApp.settings.ocr_exepath;
 		CString arg1 = theApp.settings.ocr_arg1;
@@ -763,11 +757,6 @@ void CMainDlg::Thread_Normal(void *param) {
 		GetLocalTime(&time);
 		theApp.status.serverDelay = ((time.wSecond - theApp.status.serverSecond + 60) % 60) * 1000 + time.wMilliseconds;
 		
-
-		//DeleteDC(hDcMem);
-		//DeleteDC(hDcIE);
-
-		
 		rect = theApp.settings.rgn_ocr_price;
 		rect.OffsetRect(theApp.settings.pt_index);
 
@@ -782,7 +771,6 @@ void CMainDlg::Thread_Normal(void *param) {
 		sscanf(sResult, "%d", &price);
 		theApp.status.price = price;
 
-
 		/*
 		timeb bTime;
 		ftime(&bTime);
@@ -792,47 +780,8 @@ void CMainDlg::Thread_Normal(void *param) {
 		rl.WriteLogInfo(rl.m_cInfo);
 		*/
 
-
 		theApp.GetMainWnd()->Invalidate(FALSE);
 		Sleep(50);
-
-		//break;
-
-		/*
-		Tools::SaveBitmap(&dc, "./ss_time.bmp");
-		Tools::GetBitmapMask(mask, &dc);
-		bitmap.DeleteObject();
-		ocr = Tools::OCR_Number(mask, rect.Width());
-		if(ocr != 0 && theApp.status.serverSecond != ocr % 100) {
-		theApp.status.serverHour = (ocr / 10000) % 100;
-		theApp.status.serverMinute = (ocr / 100) % 100;
-		theApp.status.serverSecond = ocr % 100;
-		GetLocalTime(&time);
-		theApp.status.serverDelay = ((time.wSecond - theApp.status.serverSecond + 60) % 60) * 1000 + time.wMilliseconds;
-		}
-		//
-		// Price
-		//
-		rect = theApp.settings.rgn_ocr_price;
-		rect.OffsetRect(theApp.settings.pt_index);
-		bitmap.CreateCompatibleBitmap(pDcIE, rect.Width(), rect.Height());
-		dc.SelectObject(&bitmap);
-		dc.BitBlt(0, 0, rect.Width(), rect.Height(), pDcIE, rect.left, rect.top, SRCCOPY);
-		// Tools::SaveBitmap(&dc, "./ss_price.bmp");
-		Tools::GetBitmapMask(mask, &dc);
-		bitmap.DeleteObject();
-		ocr = Tools::OCR_Number(mask, rect.Width());
-		if(ocr != 0) {
-		theApp.status.price = ocr;
-		}
-
-		//
-		// Cleanup
-		//
-		dc.DeleteDC();
-		theApp.GetMainWnd()->Invalidate(FALSE);
-		Sleep(50);
-		*/
 	}
 	isNormal = FALSE;
 }
@@ -924,6 +873,50 @@ void  CMainDlg::ChuJiaBase(CPoint ptIndex, int addPrice) {
 	ClickOnce(pt);
 
 	theApp.status.bid_price = theApp.status.price + addPrice;
+}
+
+void CMainDlg::Thread_TestBmp(void *param) {
+	HDC hDcIE = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
+	HDC hDcMem;
+	HBITMAP hBitmap;
+
+	CRect rect;
+	SYSTEMTIME time;
+
+	isNormal = TRUE;
+	while (canNormal) {
+		Sleep(3500);
+		//
+		// Init
+		//
+		hDcMem = CreateCompatibleDC(hDcIE);
+
+		//
+		// Time
+		//
+		//rect = theApp.settings.rgn_ocr_time;
+		//rect = theApp.settings.rgn_ocr_price;
+		rect = theApp.settings.rgn_yzm_picture;
+		//rect = theApp.settings.rgn_yzm_info;
+		rect.OffsetRect(theApp.settings.pt_index);
+		
+		hBitmap = CreateCompatibleBitmap(hDcIE, rect.Width(), rect.Height());
+		HBITMAP hBmpOld = (HBITMAP)SelectObject(hDcMem, hBitmap);
+		DWORD dwRop = SRCCOPY | CAPTUREBLT;
+		BOOL bRet = BitBlt(hDcMem, 0, 0, rect.Width(), rect.Height(), hDcIE, rect.left, rect.top, dwRop);
+		SelectObject(hDcMem, hBmpOld);
+		Tools::SaveBitmap2(hBitmap, "./ss_time.bmp");
+		DeleteObject(hBitmap);
+
+		DeleteDC(hDcMem);
+		DeleteDC(hDcIE);
+
+		theApp.GetMainWnd()->Invalidate(FALSE);
+		Sleep(50);
+
+		break;
+	}
+	isNormal = FALSE;
 }
 
 //==================================================================================================

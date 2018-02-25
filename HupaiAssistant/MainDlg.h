@@ -95,4 +95,6 @@ public:
 
 	// 按照加价幅度出价
 	static void ChuJiaBase(CPoint ptIndex, int addPrice);
+	// bmp截图测试
+	static void Thread_TestBmp(void *);
 };
