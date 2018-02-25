@@ -158,13 +158,13 @@ BOOL Settings::LoadSettings() {
 		// 启动默认伏击策略：如48s+700。
 		TI_FETCH(e1, "ChuJia");
 		this->hotkey_chujia = Tools::LongFromStr(e1->GetText());
-		this->hotkey_chujia_0 = Tools::LongFromStr("131120");
-		this->hotkey_chujia_3 = Tools::LongFromStr("131123");
-		this->hotkey_chujia_4 = Tools::LongFromStr("131124");
-		this->hotkey_chujia_5 = Tools::LongFromStr("131125");
-		this->hotkey_chujia_6 = Tools::LongFromStr("131126");
-		this->hotkey_chujia_8 = Tools::LongFromStr("131128");
-		this->hotkey_chujia_9 = Tools::LongFromStr("131129");
+		this->hotkey_chujia_0 = this->hotkey_chujia - 7;
+		this->hotkey_chujia_3 = this->hotkey_chujia - 4;
+		this->hotkey_chujia_4 = this->hotkey_chujia - 3;
+		this->hotkey_chujia_5 = this->hotkey_chujia - 2;
+		this->hotkey_chujia_6 = this->hotkey_chujia - 1;
+		this->hotkey_chujia_8 = this->hotkey_chujia + 1;
+		this->hotkey_chujia_9 = this->hotkey_chujia + 2;
 		// 退出任何自动模式
 		TI_FETCH(e1, "AutoConfirm");
 		this->hotkey_auto_confirm = Tools::LongFromStr(e1->GetText());
