@@ -4,7 +4,7 @@
 		<BidDate>2016-05-21</BidDate>
 		<EndTime>11:30:00.0</EndTime>
 		<Amount>11598</Amount>
-		<CapPrice>89000</CapPrice>
+		<CapPrice>86300</CapPrice>
 	</BidInfo>
 	
 	<IE>
@@ -31,8 +31,8 @@
 		<YZM_Submit>535,334</YZM_Submit>
 		<YZM_Cancle>725,334</YZM_Cancle>
 		<OK_Button>635,322</OK_Button>
-		<YZM_Info>455,255,345,25</YZM_Info>
-		<YZM_Picture>715,211,115,35</YZM_Picture>
+		<YZM_Info>437,180,345,25</YZM_Info>
+		<YZM_Picture>473,234,119,51</YZM_Picture>
 	</Position_51hupai>
 	
 	<Position_alltobid>
@@ -74,7 +74,7 @@
 		<CommitAdvance>0</CommitAdvance>
 		<CommitDelay>0:0:0.0</CommitDelay>
 		<!-- <CommitBefore>11:29:55.600</CommitBefore> -->
-		<CommitBefore>11:29:56.500</CommitBefore>
+		<CommitBefore>11:29:55.500</CommitBefore>
 	</AutoBid>
 
 	<OCR>

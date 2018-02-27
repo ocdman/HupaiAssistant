@@ -797,6 +797,11 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 
 	isAutoConfirm = TRUE;
 
+	timeb bTime;
+	ftime(&bTime);
+	sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Start");
+	rl.WriteLogInfo(rl.m_cInfo);
+
 	while(canAutoConfirm) {
 		if(theApp.settings.isRealMode) {
 			GetSystemTime(&time);
@@ -812,6 +817,9 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 
 		// 达到伏击价格
 		if(theApp.status.price >= cmt_price) {
+			ftime(&bTime);
+			sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s price = %d, commit price = %d \n----------------------\n", ctime(&(bTime.time)), theApp.status.price, cmt_price);
+			rl.WriteLogInfo(rl.m_cInfo);
 			if(cmt_delay > 0) {
 				Sleep((cur_time + cmt_delay < latest_time) ? cmt_delay : latest_time - cur_time);
 			}
@@ -819,6 +827,10 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 		}
 		Sleep(10);
 	};
+
+	ftime(&bTime);
+	sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Stop");
+	rl.WriteLogInfo(rl.m_cInfo);
 
 	if (canAutoConfirm && theApp.status.autoBidStep == Status::AUTO_CONFIRM) {
 		theApp.GetMainWnd()->SendMessage(WM_HOTKEY, HOTKEY_CONFIRM, theApp.settings.hotkey_confirm);

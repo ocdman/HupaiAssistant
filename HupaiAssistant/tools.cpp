@@ -174,6 +174,9 @@ BOOL Tools::SaveBitmap(const CDC *pdc, const char *name) {
 	return TRUE;
 }
 
+//
+// 保存.bmp格式的图像文件
+//
 BOOL Tools::SaveBitmap2(HBITMAP hBitmap, const char *name) {
 
 	FILE *fp;
@@ -378,6 +381,9 @@ int Tools::OCR_Number(const void *pData, int w, int h /* 10 */) {
 	return val;
 }
 
+//
+// 执行外部命令行
+//
 CString Tools::ExecuteExternalFile(CString csExecute)
 {
 	SECURITY_ATTRIBUTES secattr;
