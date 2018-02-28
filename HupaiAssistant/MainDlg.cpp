@@ -179,7 +179,8 @@ BOOL CMainDlg::OnInitDialog() {
 	}
 	HWND hWnd = pWndIE->GetSafeHwnd();
 	::SetWindowLong(hWnd, GWL_STYLE, GetWindowLong(hWnd, GWL_STYLE) & ~(WS_MINIMIZEBOX  | WS_MAXIMIZEBOX | WS_THICKFRAME) );
-	::SetWindowPos(hWnd, NULL, 0, 0, theApp.settings.ie_width, theApp.settings.ie_height, SWP_NOMOVE | SWP_FRAMECHANGED);
+	//::SetWindowPos(hWnd, NULL, 0, 0, theApp.settings.ie_width, theApp.settings.ie_height, SWP_NOMOVE | SWP_FRAMECHANGED);
+	::SetWindowPos(hWnd, NULL, -7, 0, theApp.settings.ie_width, theApp.settings.ie_height, SWP_FRAMECHANGED);
 
 	//
 	// 启动OCR线程
@@ -188,7 +189,7 @@ BOOL CMainDlg::OnInitDialog() {
 	_beginthread(Thread_Normal, 0, NULL);
 
 	//
-	// 系统时间&最低可成交价
+	// 系统时间 & 最低可成交价 & 验证码
 	// 截图测试(不要和Thread_Normal线程同开)
 	//
 	//_beginthread(Thread_TestBmp, 0, NULL);
@@ -799,7 +800,7 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 
 	timeb bTime;
 	ftime(&bTime);
-	sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Start");
+	sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Start, Commit Price = ", cmt_price);
 	rl.WriteLogInfo(rl.m_cInfo);
 
 	while(canAutoConfirm) {
@@ -818,7 +819,7 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 		// 达到伏击价格
 		if(theApp.status.price >= cmt_price) {
 			ftime(&bTime);
-			sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s price = %d, commit price = %d \n----------------------\n", ctime(&(bTime.time)), theApp.status.price, cmt_price);
+			sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirming, Current Price = ", theApp.status.price);
 			rl.WriteLogInfo(rl.m_cInfo);
 			if(cmt_delay > 0) {
 				Sleep((cur_time + cmt_delay < latest_time) ? cmt_delay : latest_time - cur_time);
@@ -829,7 +830,7 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 	};
 
 	ftime(&bTime);
-	sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Stop");
+	sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Stop, Bid Price = ", theApp.status.bid_price);
 	rl.WriteLogInfo(rl.m_cInfo);
 
 	if (canAutoConfirm && theApp.status.autoBidStep == Status::AUTO_CONFIRM) {
@@ -906,18 +907,47 @@ void CMainDlg::Thread_TestBmp(void *param) {
 		//
 		// Time
 		//
-		//rect = theApp.settings.rgn_ocr_time;
-		//rect = theApp.settings.rgn_ocr_price;
-		rect = theApp.settings.rgn_yzm_picture;
-		//rect = theApp.settings.rgn_yzm_info;
+		rect = theApp.settings.rgn_ocr_time;
 		rect.OffsetRect(theApp.settings.pt_index);
 		
+		//Time
 		hBitmap = CreateCompatibleBitmap(hDcIE, rect.Width(), rect.Height());
 		HBITMAP hBmpOld = (HBITMAP)SelectObject(hDcMem, hBitmap);
 		DWORD dwRop = SRCCOPY | CAPTUREBLT;
 		BOOL bRet = BitBlt(hDcMem, 0, 0, rect.Width(), rect.Height(), hDcIE, rect.left, rect.top, dwRop);
 		SelectObject(hDcMem, hBmpOld);
 		Tools::SaveBitmap2(hBitmap, "./ss_time.bmp");
+
+		//Price
+		rect = theApp.settings.rgn_ocr_price;
+		rect.OffsetRect(theApp.settings.pt_index);
+		hBitmap = CreateCompatibleBitmap(hDcIE, rect.Width(), rect.Height());
+		hBmpOld = (HBITMAP)SelectObject(hDcMem, hBitmap);
+		BitBlt(hDcMem, 0, 0, rect.Width(), rect.Height(), hDcIE, rect.left, rect.top, dwRop);
+		SelectObject(hDcMem, hBmpOld);
+		Tools::SaveBitmap2(hBitmap, "./ss_price.bmp");
+
+		//Wait 5s to open YZM
+		Sleep(5000);
+
+		//YZM Picture
+		rect = theApp.settings.rgn_yzm_picture;
+		rect.OffsetRect(theApp.settings.pt_index);
+		hBitmap = CreateCompatibleBitmap(hDcIE, rect.Width(), rect.Height());
+		hBmpOld = (HBITMAP)SelectObject(hDcMem, hBitmap);
+		BitBlt(hDcMem, 0, 0, rect.Width(), rect.Height(), hDcIE, rect.left, rect.top, dwRop);
+		SelectObject(hDcMem, hBmpOld);
+		Tools::SaveBitmap2(hBitmap, "./ss_yzm_pic.bmp");
+
+		//YZM Info
+		rect = theApp.settings.rgn_yzm_info;
+		rect.OffsetRect(theApp.settings.pt_index);
+		hBitmap = CreateCompatibleBitmap(hDcIE, rect.Width(), rect.Height());
+		hBmpOld = (HBITMAP)SelectObject(hDcMem, hBitmap);
+		BitBlt(hDcMem, 0, 0, rect.Width(), rect.Height(), hDcIE, rect.left, rect.top, dwRop);
+		SelectObject(hDcMem, hBmpOld);
+		Tools::SaveBitmap2(hBitmap, "./ss_yzm_info.bmp");
+
 		DeleteObject(hBitmap);
 
 		DeleteDC(hDcMem);
@@ -926,6 +956,7 @@ void CMainDlg::Thread_TestBmp(void *param) {
 		theApp.GetMainWnd()->Invalidate(FALSE);
 		Sleep(50);
 
+		//Only Loop once
 		break;
 	}
 	isNormal = FALSE;
