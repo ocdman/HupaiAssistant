@@ -769,7 +769,9 @@ void CMainDlg::Thread_Normal(void *param) {
 		sResult = Tools::ExecuteExternalFile(strCommandLine);
 		sResult.Remove('\r');
 		sResult.Remove('\n');
-		sResult.Remove(' ');	
+		sResult.Remove(' ');
+		sResult.Remove('.');
+		sResult.Remove(',');
 
 		int price;
 		sscanf(sResult, "%d", &price);

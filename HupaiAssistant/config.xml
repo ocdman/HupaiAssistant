@@ -1,4 +1,4 @@
-<HupaiAssistant version="2016.5" time="2016-05-21 10:30" description="" real_mode="1" test_bmp="0">
+<HupaiAssistant version="2016.5" time="2016-05-21 10:30" description="" real_mode="0" test_bmp="0">
 
 	<BidInfo>
 		<BidDate>2016-05-21</BidDate>
@@ -19,7 +19,8 @@
 	<Position_51hupai>
 		<Index>64,224</Index>
 		<OCR_Time>78,231,64,10</OCR_Time>
-		<OCR_Price>625,94,52,20</OCR_Price>
+    <OCR_Price>134,280,114,29</OCR_Price>
+		<!--<OCR_Price>625,94,52,20</OCR_Price>-->
     <!--<Index>64,224</Index>
     <OCR_Time>78,231,64,10</OCR_Time>
     <OCR_Price>133,248,40,10</OCR_Price>-->
@@ -87,9 +88,9 @@
 		<!-- <CommitAdvance>100</CommitAdvance>
 		<CommitDelay>0:0:1.0</CommitDelay> -->
 		<CommitAdvance>0</CommitAdvance>
-		<CommitDelay>0:0:0.2</CommitDelay>
+		<CommitDelay>0:0:0.0</CommitDelay>
 		<!-- <CommitBefore>11:29:55.600</CommitBefore> -->
-		<CommitBefore>11:29:55.000</CommitBefore>
+		<CommitBefore>11:29:55.600</CommitBefore>
 	</AutoBid>
 
 	<OCR>
