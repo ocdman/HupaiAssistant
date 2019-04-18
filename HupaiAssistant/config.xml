@@ -1,23 +1,28 @@
-<HupaiAssistant version="2016.5" time="2016-05-21 10:30" description="" real_mode="0">
+<HupaiAssistant version="2016.5" time="2016-05-21 10:30" description="" real_mode="1" test_bmp="0">
 
 	<BidInfo>
 		<BidDate>2016-05-21</BidDate>
 		<EndTime>11:30:00.0</EndTime>
 		<Amount>11598</Amount>
-		<CapPrice>92300</CapPrice>
+		<!--<CapPrice>88100</CapPrice>-->
+    <CapPrice>86300</CapPrice>
 	</BidInfo>
 	
 	<IE>
 		<Width>1000</Width>
 		<Height>800</Height>
 		<URL>https://paimai.alltobid.com/</URL>
-		<URL_Practice>http://moni.51hupai.org/</URL_Practice>
+		<URL_Practice>http://moni.51hupai.com/</URL_Practice>
 	</IE>
 	
+  <!--REAL_MODE=0 51模拟环境-->
 	<Position_51hupai>
-		<Index>65,231</Index>
-		<OCR_Time>105,224,64,10</OCR_Time>
-		<OCR_Price>132,240,40,10</OCR_Price>
+		<Index>64,224</Index>
+		<OCR_Time>78,231,64,10</OCR_Time>
+		<OCR_Price>625,94,52,20</OCR_Price>
+    <!--<Index>64,224</Index>
+    <OCR_Time>78,231,64,10</OCR_Time>
+    <OCR_Price>133,248,40,10</OCR_Price>-->
 		<JJ_Input>665,150</JJ_Input>
 		<JJ_Button>777,150</JJ_Button>
 		<CJ_Input>665,255</CJ_Input>
@@ -31,26 +36,35 @@
 		<YZM_Submit>535,334</YZM_Submit>
 		<YZM_Cancle>725,334</YZM_Cancle>
 		<OK_Button>635,322</OK_Button>
-		<YZM_Info>437,180,345,25</YZM_Info>
-		<YZM_Picture>473,234,119,51</YZM_Picture>
+		<YZM_Info>438,188,345,25</YZM_Info>
+		<YZM_Picture>474,242,119,51</YZM_Picture>
 		<!-- <YZM_Picture>473,234,140,51</YZM_Picture> -->
 	</Position_51hupai>
-	
+
+  <!--REAL_MODE=1 真实环境-->
 	<Position_alltobid>
-		<Index>65,231</Index>
-		<OCR_Time>101,228,64,10</OCR_Time>
-		<OCR_Price>129,244,40,10</OCR_Price>
-		<JJ_Input>665,150</JJ_Input>
-		<JJ_Button>777,150</JJ_Button>
-		<CJ_Input>665,255</CJ_Input>
-		<CJ_Button>777,255</CJ_Button>
-		<YZM_Input>680,230</YZM_Input>
+    <Index>64,224</Index>
+    <OCR_Time>78,231,64,10</OCR_Time>
+    <OCR_Price>625,94,52,20</OCR_Price>
+    <!--<Index>64,224</Index>
+    <OCR_Time>78,231,64,10</OCR_Time>
+    <OCR_Price>133,248,40,10</OCR_Price>-->
+    <JJ_Input>665,150</JJ_Input>
+    <JJ_Button>777,150</JJ_Button>
+    <CJ_Input>665,255</CJ_Input>
+    <CJ_Button>777,255</CJ_Button>
+    <!-- 	<YZM_Input>680,230</YZM_Input>
 		<YZM_Refresh>770,230</YZM_Refresh>
 		<YZM_Submit>535,320</YZM_Submit>
-		<YZM_Cancle>725,320</YZM_Cancle>
-		<OK_Button>640,315</OK_Button>
-		<YZM_Info>455,255,345,25</YZM_Info>
-		<YZM_Picture>715,211,115,35</YZM_Picture>
+		<YZM_Cancle>725,320</YZM_Cancle> -->
+    <YZM_Input>715,254</YZM_Input>
+    <YZM_Refresh>529,257</YZM_Refresh>
+    <YZM_Submit>535,334</YZM_Submit>
+    <YZM_Cancle>725,334</YZM_Cancle>
+    <OK_Button>635,322</OK_Button>
+    <YZM_Info>438,188,345,25</YZM_Info>
+    <YZM_Picture>474,242,119,51</YZM_Picture>
+    <!-- <YZM_Picture>473,234,140,51</YZM_Picture> -->
 	</Position_alltobid>
 	
 	<HotKey>
@@ -75,7 +89,7 @@
 		<CommitAdvance>0</CommitAdvance>
 		<CommitDelay>0:0:0.2</CommitDelay>
 		<!-- <CommitBefore>11:29:55.600</CommitBefore> -->
-		<CommitBefore>11:29:55.500</CommitBefore>
+		<CommitBefore>11:29:55.000</CommitBefore>
 	</AutoBid>
 
 	<OCR>

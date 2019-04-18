@@ -180,19 +180,22 @@ BOOL CMainDlg::OnInitDialog() {
 	HWND hWnd = pWndIE->GetSafeHwnd();
 	::SetWindowLong(hWnd, GWL_STYLE, GetWindowLong(hWnd, GWL_STYLE) & ~(WS_MINIMIZEBOX  | WS_MAXIMIZEBOX | WS_THICKFRAME) );
 	//::SetWindowPos(hWnd, NULL, 0, 0, theApp.settings.ie_width, theApp.settings.ie_height, SWP_NOMOVE | SWP_FRAMECHANGED);
-	::SetWindowPos(hWnd, NULL, -7, 0, theApp.settings.ie_width, theApp.settings.ie_height, SWP_FRAMECHANGED);
+	::SetWindowPos(hWnd, NULL, -7, 0, theApp.settings.ie_width, theApp.settings.ie_height, SWP_FRAMECHANGED);	
 
-	//
-	// 启动OCR线程
-	//
 	canNormal = TRUE;
-	_beginthread(Thread_Normal, 0, NULL);
 
-	//
-	// 系统时间 & 最低可成交价 & 验证码
-	// 截图测试(不要和Thread_Normal线程同开)
-	//
-	//_beginthread(Thread_TestBmp, 0, NULL);
+	if (theApp.settings.isTestBmp) {
+		//
+		// 系统时间 & 最低可成交价 & 验证码
+		// 截图测试(不要和Thread_Normal线程同开)
+		//
+		_beginthread(Thread_TestBmp, 0, NULL);
+	} else {
+		//
+		// 启动OCR线程
+		//
+		_beginthread(Thread_Normal, 0, NULL);
+	}
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -798,10 +801,10 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 
 	isAutoConfirm = TRUE;
 
-	timeb bTime;
-	ftime(&bTime);
-	sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Start, Commit Price = ", cmt_price);
-	rl.WriteLogInfo(rl.m_cInfo);
+	//timeb bTime;
+	//ftime(&bTime);
+	//sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Start, Commit Price = ", cmt_price);
+	//rl.WriteLogInfo(rl.m_cInfo);
 
 	while(canAutoConfirm) {
 		if(theApp.settings.isRealMode) {
@@ -818,9 +821,9 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 
 		// 达到伏击价格
 		if(theApp.status.price >= cmt_price) {
-			ftime(&bTime);
-			sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirming, Current Price = ", theApp.status.price);
-			rl.WriteLogInfo(rl.m_cInfo);
+			//ftime(&bTime);
+			//sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirming, Current Price = ", theApp.status.price);
+			//rl.WriteLogInfo(rl.m_cInfo);
 			if(cmt_delay > 0) {
 				Sleep((cur_time + cmt_delay < latest_time) ? cmt_delay : latest_time - cur_time);
 			}
@@ -829,9 +832,9 @@ void CMainDlg::Thread_AutoConfirm(void *param) {
 		Sleep(10);
 	};
 
-	ftime(&bTime);
-	sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Stop, Bid Price = ", theApp.status.bid_price);
-	rl.WriteLogInfo(rl.m_cInfo);
+	//ftime(&bTime);
+	//sprintf(rl.m_cInfo, "\n++++++++++++++++++++++\n %s %s %d \n----------------------\n", ctime(&(bTime.time)), "AutoConfirm Stop, Bid Price = ", theApp.status.bid_price);
+	//rl.WriteLogInfo(rl.m_cInfo);
 
 	if (canAutoConfirm && theApp.status.autoBidStep == Status::AUTO_CONFIRM) {
 		theApp.GetMainWnd()->SendMessage(WM_HOTKEY, HOTKEY_CONFIRM, theApp.settings.hotkey_confirm);

@@ -32,6 +32,7 @@ public:
 	CString cfg_time;
 	CString cfg_desc;
 	BOOL	isRealMode;
+	BOOL	isTestBmp;
 
 	//
 	// едбТпео╒

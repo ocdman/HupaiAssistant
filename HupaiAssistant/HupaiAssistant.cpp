@@ -49,7 +49,9 @@ BOOL Settings::LoadSettings() {
 		ASSERT(this->cfg_time = eRoot->Attribute("time"));
 		ASSERT(this->cfg_desc = eRoot->Attribute("description"));
 		ASSERT(eRoot->Attribute("real_mode"));
+		ASSERT(eRoot->Attribute("test_bmp"));
 		this->isRealMode = (strcmp(eRoot->Attribute("real_mode"), "0") == 0) ? FALSE : TRUE;
+		this->isTestBmp = (strcmp(eRoot->Attribute("test_bmp"), "0") == 0) ? FALSE : TRUE;
 	} else {
 		return FALSE;
 	}
